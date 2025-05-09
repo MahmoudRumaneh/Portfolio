@@ -2,6 +2,7 @@ services:
   - type: web
     name: laravel-portfolio
     plan: free
+    runtime: docker
     buildCommand: |
       composer install --no-dev --optimize-autoloader
       php artisan key:generate --force

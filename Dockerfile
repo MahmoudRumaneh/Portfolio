@@ -1,6 +1,6 @@
 FROM php:8.2-apache
 
-# Enable mod_rewrite
+# Enable Apache mod_rewrite
 RUN a2enmod rewrite
 
 # Install system dependencies
@@ -22,14 +22,24 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # Set working directory
 WORKDIR /var/www/html
 
-# Copy project files
+# Copy all project files
 COPY . .
 
-# Set correct permissions
-RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+# Install dependencies (this is what was missing)
+RUN composer install --no-dev --optimize-autoloader
 
-# Expose Laravel's default port
+# Laravel setup (these were previously in render.yaml)
+RUN php artisan key:generate --force && \
+    php artisan migrate --force || true && \
+    php artisan config:cache && \
+    php artisan route:cache && \
+    php artisan view:cache
+
+# Set correct permissions
+RUN chown -R www-data:www-data storage bootstrap/cache
+
+# Expose HTTP port
 EXPOSE 80
 
-# Default command
-CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=80"]
+# Start Apache
+CMD ["apache2-foreground"]

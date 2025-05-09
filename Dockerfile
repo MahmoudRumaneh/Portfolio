@@ -25,15 +25,17 @@ WORKDIR /var/www/html
 # Copy all project files
 COPY . .
 
-# Fix Apache to serve from Laravel's /public folder
-RUN echo "<VirtualHost *:80>
-    DocumentRoot /var/www/html/public
-    <Directory /var/www/html/public>
-        Options Indexes FollowSymLinks
-        AllowOverride All
-        Require all granted
-    </Directory>
-</VirtualHost>" > /etc/apache2/sites-available/000-default.conf
+# Fix Apache to serve from Laravel's /public folder (escape quotes and newlines)
+RUN bash -c 'cat > /etc/apache2/sites-available/000-default.conf <<EOF\n\
+<VirtualHost *:80>\n\
+    DocumentRoot /var/www/html/public\n\
+    <Directory /var/www/html/public>\n\
+        Options Indexes FollowSymLinks\n\
+        AllowOverride All\n\
+        Require all granted\n\
+    </Directory>\n\
+</VirtualHost>\n\
+EOF'
 
 # Set correct permissions for Laravel
 RUN chown -R www-data:www-data storage bootstrap/cache

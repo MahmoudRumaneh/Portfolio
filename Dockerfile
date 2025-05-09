@@ -25,26 +25,18 @@ WORKDIR /var/www/html
 # Copy all project files
 COPY . .
 
-# Fix Apache to serve Laravel from /public using printf
-RUN printf "<VirtualHost *:80>\n\
-    DocumentRoot /var/www/html/public\n\
-    <Directory /var/www/html/public>\n\
-        Options Indexes FollowSymLinks\n\
-        AllowOverride All\n\
-        Require all granted\n\
-    </Directory>\n\
-</VirtualHost>\n" > /etc/apache2/sites-available/000-default.conf
+# Install dependencies (this is what was missing)
+RUN composer install --no-dev --optimize-autoloader
 
-# Set correct permissions for Laravel
-RUN chown -R www-data:www-data storage bootstrap/cache
-
-# Install dependencies and Laravel setup
-RUN composer install --no-dev --optimize-autoloader && \
-    php artisan key:generate --force && \
+# Laravel setup (these were previously in render.yaml)
+RUN php artisan key:generate --force && \
     php artisan migrate --force || true && \
     php artisan config:cache && \
     php artisan route:cache && \
     php artisan view:cache
+
+# Set correct permissions
+RUN chown -R www-data:www-data storage bootstrap/cache
 
 # Expose HTTP port
 EXPOSE 80

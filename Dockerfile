@@ -35,6 +35,9 @@ RUN printf "<VirtualHost *:80>\n\
         AllowOverride All\n\
         Require all granted\n\
     </Directory>\n\
+    <Directory /var/www/html/public/build>\n\
+        Require all granted\n\
+    </Directory>\n\
 </VirtualHost>\n" > /etc/apache2/sites-available/000-default.conf
 
 # Set permissions
@@ -45,6 +48,8 @@ RUN composer install --no-dev --optimize-autoloader
 
 # ✅ Install Node dependencies and build assets for Vite/Bootstrap
 RUN npm install && npm run build
+
+RUN php artisan config:clear && php artisan view:clear && php artisan route:clear
 
 RUN npx vite build
 

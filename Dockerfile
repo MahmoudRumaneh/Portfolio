@@ -14,12 +14,14 @@ RUN apt-get update && apt-get install -y \
     zip \
     curl \
     sqlite3 \
+    nodejs \
+    npm \
     && docker-php-ext-install pdo pdo_mysql zip
 
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Set working directory to Laravel root
+# Set working directory
 WORKDIR /var/www/html
 
 # Copy project files
@@ -35,14 +37,16 @@ RUN printf "<VirtualHost *:80>\n\
     </Directory>\n\
 </VirtualHost>\n" > /etc/apache2/sites-available/000-default.conf
 
-# Set correct permissions
+# Set permissions
 RUN chown -R www-data:www-data storage bootstrap/cache
 
-# Install Laravel dependencies
+# Install PHP dependencies
 RUN composer install --no-dev --optimize-autoloader
+
+# ✅ Install Node dependencies and build assets for Vite/Bootstrap
+RUN npm install && npm run build
 
 # Expose HTTP port
 EXPOSE 80
 
 CMD ["apache2-foreground"]
-

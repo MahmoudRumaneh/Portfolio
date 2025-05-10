@@ -13,7 +13,7 @@ export default defineConfig((configEnv = { mode: 'production' }) => {
             }),
         ],
         build: {
-            outDir: 'dist',
+            outDir: 'public/build',
             emptyOutDir: true,
         },
     };

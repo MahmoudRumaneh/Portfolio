@@ -44,4 +44,5 @@ RUN composer install --no-dev --optimize-autoloader
 # Expose HTTP port
 EXPOSE 80
 
-CMD ["/bin/sh", "-c", "touch /tmp/database.sqlite && chown www-data:www-data /tmp/database.sqlite && apache2-foreground"]
+CMD /bin/sh -c "touch /tmp/database.sqlite && chown www-data:www-data /tmp/database.sqlite && apache2-foreground"
+

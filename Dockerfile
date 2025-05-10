@@ -44,7 +44,7 @@ RUN chown -R www-data:www-data storage bootstrap/cache
 RUN composer install --no-dev --optimize-autoloader
 
 # ✅ Install Node dependencies and build assets for Vite/Bootstrap
-RUN npm install && npm run build
+RUN npm install && npx vite build
 
 # Expose HTTP port
 EXPOSE 80
